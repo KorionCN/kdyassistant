@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center"
+    tools:context=".MainActivity">
+
+    <Button
+        android:id="@+id/btn_0"
+        android:text="@string/floating_window"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btn_1"
+        android:text="@string/barrier_free"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/btn_launch"
+        android:text="@string/launch"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"/>
+</LinearLayout>
