@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<accessibility-service
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRetrieveWindowContent="false"
+    android:description="@string/assistant_desc"
+    android:notificationTimeout="100"
+    android:packageNames="com.korion.kdyassistant"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+</accessibility-service>

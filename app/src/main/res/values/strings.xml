@@ -3,4 +3,14 @@
     <string name="floating_window">设置悬浮窗权限</string>
     <string name="barrier_free">无障碍</string>
     <string name="launch">启动</string>
+    <string name="go">开始</string>
+    <string name="pause">暂停</string>
+    <string name="close">关闭</string>
+    <string name="assistant_desc">口袋阅自动翻页</string>
+    <string name="accessibility_service_close">辅助服务未开启</string>
+    <string name="permission_request">权限说明</string>
+    <string name="need_permission_desc">1.该应用需要悬浮权限\n 2.开启无障碍服务</string>
+    <string name="confirm">确定</string>
+    <string name="zero">0</string>
+    <string name="test">测试</string>
 </resources>
