@@ -11,7 +11,7 @@
     <TextView
         android:id="@+id/tv_count"
         android:text="@string/zero"
-        android:textSize="28sp"
+        android:textSize="35sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 

@@ -62,9 +62,11 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
             R.id.btn_go -> {
                 Log.d(TAG, "btn_go")
                 if (!running){
+                    setPointDraggable(false)
                     mController?.start()
                     btnGo.text = context.getString(R.string.pause)
                 } else {
+                    setPointDraggable(true)
                     mController?.stop()
                     btnGo.text = context.getString(R.string.go)
                 }
@@ -81,6 +83,7 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
         super.onAttachedToWindow()
    //     Log.d(TAG, "onAttachedToWindow")
         hasAttachToWindow = true
+        addInitPoint()
     }
 
     fun destroy(){
@@ -95,17 +98,19 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
 
     private fun showInternal(windowManager: WindowManager){
         mWindowManager = windowManager
-        val overlayParam =
+        val windowType =
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
                 WindowManager.LayoutParams.TYPE_PHONE
             }
+        val flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
         val params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
-            overlayParam,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            windowType,
+            flags,
             PixelFormat.TRANSLUCENT)
         params.gravity = Gravity.TOP or Gravity.START
         windowManager.addView(this, params)
@@ -117,14 +122,14 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
     }
 
     fun getClickPoints(): List<Point>{
-        val displayMetrics = context.resources.displayMetrics
+       /* val displayMetrics = context.resources.displayMetrics
         val w = displayMetrics.widthPixels
         val h = displayMetrics.heightPixels
         return arrayListOf(Point(w/2, h/2))
-
-        /*return mPoints.map {
+*/
+        return mPoints.map {
             it.getPoint()
-        }*/
+        }
     }
 
     fun isRunning(): Boolean = running
@@ -136,6 +141,12 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
     private fun addInitPoint(){
         val point = AimPoint.show(mWindowManager, context)
         mPoints.add(point)
+    }
+
+    private fun setPointDraggable(enable: Boolean){
+        mPoints.forEach{
+            it.setDraggable(mWindowManager, enable)
+        }
     }
 
 }

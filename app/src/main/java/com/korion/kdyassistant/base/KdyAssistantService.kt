@@ -46,13 +46,14 @@ class KdyAssistantService: AccessibilityService(){
             return false
         }
         Log.d(TAG, "performClickInternal: $x, $y")
-        val path = Path().apply {
-            moveTo(x.toFloat(), y.toFloat())
-        }
-        val gestures = GestureDescription.Builder()
-            .addStroke(GestureDescription.StrokeDescription(path, 10, 10))
+        val path = Path()
+        path.moveTo(x.toFloat(), y.toFloat())
+        val builder = GestureDescription.Builder()
+        val gestureDescription = builder
+            .addStroke(GestureDescription.StrokeDescription(path, 0L, 100L))
             .build()
-        return dispatchGesture(gestures, null, null)
+        return dispatchGesture(gestureDescription, null, null)
+
     }
 
 
