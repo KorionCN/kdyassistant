@@ -14,6 +14,7 @@ import com.korion.kdyassistant.R
 import com.korion.kdyassistant.base.ControlService
 import com.korion.kdyassistant.utils.showToast
 import kotlinx.android.synthetic.main.activity_main.*
+import java.lang.NumberFormatException
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -31,22 +32,33 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         tv_count.setOnClickListener(this)
       //  btn_test.setOnClickListener(this)
 
-        /*if (!Settings.canDrawOverlays(this) || !isAccessibilityServiceEnabled()){
-            AlertDialog.Builder(baseContext)
+        if (!Settings.canDrawOverlays(this) || !isAccessibilityServiceEnabled()){
+            AlertDialog.Builder(this)
                 .setTitle(R.string.permission_request)
                 .setMessage(R.string.need_permission_desc)
                 .setPositiveButton(R.string.confirm){ dialog, _ ->
-                    dialog.dismiss()
+                    checkSystemWindowPermission() && checkAccessibilityService()
                 }.show()
-        }*/
+        }
     }
 
     override fun onClick(view: View) {
         when(view.id){
             R.id.btn_launch -> {
                 if (checkSystemWindowPermission() && checkAccessibilityService()){
+                    val period: Long
+                    val interval: Long
+                    try {
+                        period = edt_period.text.toString().toLong() * 1000
+                        interval = edt_interval.text.toString().toLong()
+                    } catch (e: NumberFormatException){
+                        showToast("输入数值有误")
+                        return
+                    }
                     //启动服务
                     val intent = Intent(this, ControlService::class.java)
+                    intent.putExtra(ControlService.KEY_PERIOD, period)
+                    intent.putExtra(ControlService.KEY_INTERVAL, interval)
                     startService(intent)
                 }
             }

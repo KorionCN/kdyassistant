@@ -4,24 +4,23 @@ import android.content.Context
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.os.Build
-import android.util.AttributeSet
 import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import android.widget.FrameLayout
+import android.widget.ImageView
+import android.widget.TextView
 import com.korion.kdyassistant.R
 import com.korion.kdyassistant.base.ServiceController
+import kotlin.math.max
+import kotlin.math.min
 
 
-class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
-    FrameLayout(context, attrs, defaultStyle), View.OnClickListener{
+class ControlView(context: Context, interval: Long): FrameLayout(context), View.OnClickListener{
 
-    constructor(context: Context, attrs: AttributeSet?): this(context, attrs, 0)
-
-    constructor(context: Context): this(context, null)
+    constructor(context: Context): this(context, 1000)
 
     companion object {
         private const val TAG = "ControlView"
@@ -37,8 +36,11 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
 
     private lateinit var mWindowManager: WindowManager
     private val root = LayoutInflater.from(context).inflate(R.layout.control_view, this, true)
-    private var btnGo: Button
-    private var btnClose: Button
+    private val btnGo: ImageView
+    private val btnInc: ImageView
+    private val btnLow: ImageView
+    private val tvInterval: TextView
+    private val btnClose: ImageView
 
     private var mController: ServiceController? = null
 
@@ -46,15 +48,23 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
 
     private var running = false
 
-    private var mInterval: Long = 1000
+    private var mInterval: Long = interval
 
     private val mPoints = arrayListOf<AimPoint>()
 
     init {
         btnGo = root.findViewById(R.id.btn_go)
-        btnGo.setOnClickListener(this)
         btnClose = root.findViewById(R.id.btn_close)
+        btnInc = root.findViewById(R.id.btn_inc)
+        btnLow = root.findViewById(R.id.btn_low)
+        tvInterval = root.findViewById(R.id.tv_interval)
+
+        btnGo.setOnClickListener(this)
+        btnInc.setOnClickListener(this)
+        btnLow.setOnClickListener(this)
         btnClose.setOnClickListener(this)
+
+        flushIntervalText()
     }
 
     override fun onClick(v: View) {
@@ -64,19 +74,38 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
                 if (!running){
                     setPointDraggable(false)
                     mController?.start()
-                    btnGo.text = context.getString(R.string.pause)
+                    btnGo.setImageResource(R.drawable.ic_pause)
                 } else {
                     setPointDraggable(true)
                     mController?.stop()
-                    btnGo.text = context.getString(R.string.go)
+                    btnGo.setImageResource(R.drawable.ic_play)
                 }
                 running = !running
             }
             R.id.btn_close -> {
                 mController?.close()
             }
+            R.id.btn_inc -> {
+                mInterval += 100
+                flushIntervalText()
+            }
+            R.id.btn_low -> {
+                mInterval = max(100L, mInterval-100)
+                flushIntervalText()
+            }
         }
+    }
 
+
+    fun setInterval(interval: Long){
+        mInterval = max(100L, interval)
+        flushIntervalText()
+    }
+
+    private fun flushIntervalText(){
+        val value = mInterval*1f/1000
+        val res = String.format("%.1fs", value)
+        tvInterval.text = res
     }
 
     override fun onAttachedToWindow() {
@@ -112,7 +141,7 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
             windowType,
             flags,
             PixelFormat.TRANSLUCENT)
-        params.gravity = Gravity.TOP or Gravity.START
+        params.gravity = Gravity.CENTER_VERTICAL or Gravity.START
         windowManager.addView(this, params)
 
     }
@@ -126,7 +155,7 @@ class ControlView(context: Context, attrs: AttributeSet?, defaultStyle: Int):
         val w = displayMetrics.widthPixels
         val h = displayMetrics.heightPixels
         return arrayListOf(Point(w/2, h/2))
-*/
+        */
         return mPoints.map {
             it.getPoint()
         }

@@ -7,16 +7,21 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import com.korion.kdyassistant.ui.ControlView
+import kotlin.concurrent.timer
 
 
 class ControlService: Service(), ServiceController {
 
     companion object {
         private const val TAG = "ControlService"
+        const val KEY_PERIOD = "period"
+        const val KEY_INTERVAL = "interval"
     }
 
     private lateinit var mControlView: ControlView
     private lateinit var mHandler: Handler
+    private var period: Long = 0
+    private var interval: Long = 0
 
     private val mAutoTask = object : Runnable{
         override fun run() {
@@ -27,8 +32,26 @@ class ControlService: Service(), ServiceController {
                 }
             }
             val interval = mControlView.getInterval()
-            mHandler.postDelayed(this, interval)
+            if (period > 0){
+                val time = System.currentTimeMillis()
+                if (time - mStartTime < period){
+                    mHandler.postDelayed(this, interval)
+                } else {
+                    stop()
+                }
+            } else {
+                mHandler.postDelayed(this, interval)
+            }
         }
+    }
+
+    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        intent?.run {
+            period = getLongExtra(KEY_PERIOD, 0)
+            interval = getLongExtra(KEY_INTERVAL, 0)
+        }
+        mControlView.setInterval(interval)
+        return super.onStartCommand(intent, flags, startId)
     }
 
     override fun onBind(intent: Intent): IBinder? {
@@ -50,7 +73,9 @@ class ControlService: Service(), ServiceController {
     /**
      * ServiceController
      * ***************************************************/
+    private var mStartTime: Long = 0
     override fun start() {
+        mStartTime = System.currentTimeMillis()
         mHandler.postDelayed(mAutoTask, 1000L)
     }
 
