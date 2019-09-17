@@ -31,13 +31,14 @@ class ControlService: Service(), ServiceController {
                     KdyAssistantService.performClick(it.x, it.y)
                 }
             }
+
             val interval = mControlView.getInterval()
             if (period > 0){
                 val time = System.currentTimeMillis()
                 if (time - mStartTime < period){
                     mHandler.postDelayed(this, interval)
                 } else {
-                    stop()
+                    mControlView.stop()
                 }
             } else {
                 mHandler.postDelayed(this, interval)

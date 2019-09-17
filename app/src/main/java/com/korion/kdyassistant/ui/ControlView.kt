@@ -72,15 +72,10 @@ class ControlView(context: Context, interval: Long): FrameLayout(context), View.
             R.id.btn_go -> {
                 Log.d(TAG, "btn_go")
                 if (!running){
-                    setPointDraggable(false)
-                    mController?.start()
-                    btnGo.setImageResource(R.drawable.ic_pause)
+                   start()
                 } else {
-                    setPointDraggable(true)
-                    mController?.stop()
-                    btnGo.setImageResource(R.drawable.ic_play)
+                   stop()
                 }
-                running = !running
             }
             R.id.btn_close -> {
                 mController?.close()
@@ -159,6 +154,20 @@ class ControlView(context: Context, interval: Long): FrameLayout(context), View.
         return mPoints.map {
             it.getPoint()
         }
+    }
+
+    fun start(){
+        setPointDraggable(false)
+        mController?.start()
+        btnGo.setImageResource(R.drawable.ic_pause)
+        running = true
+    }
+
+    fun stop(){
+        setPointDraggable(true)
+        mController?.stop()
+        btnGo.setImageResource(R.drawable.ic_play)
+        running = false
     }
 
     fun isRunning(): Boolean = running
