@@ -12,6 +12,7 @@ import android.view.Window
 import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
 import androidx.appcompat.app.AlertDialog
+import com.korion.kdyassistant.BuildConfig
 import com.korion.kdyassistant.R
 import com.korion.kdyassistant.base.ControlService
 import com.korion.kdyassistant.utils.showToast
@@ -42,14 +43,23 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val interval = sp.getInt(KEY_INTERVAL, 6000)
         edt_period.setText(time.toString())
         edt_interval.setText(interval.toString())
+        tv_version.text = String.format(getString(R.string.version, BuildConfig.VERSION_NAME))
 
         if (!Settings.canDrawOverlays(this) || !isAccessibilityServiceEnabled()){
             AlertDialog.Builder(this)
                 .setTitle(R.string.permission_request)
                 .setMessage(R.string.need_permission_desc)
+                .setNegativeButton(R.string.cancel){ dialog, _ ->
+                    dialog.cancel()
+                }
                 .setPositiveButton(R.string.confirm){ dialog, _ ->
                     checkSystemWindowPermission() && checkAccessibilityService()
                 }.show()
+        }
+
+        tv_version.setOnLongClickListener {
+            enterEngineerMode()
+            return@setOnLongClickListener true
         }
     }
 
@@ -77,6 +87,8 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     startService(intent)
                     launchReaderActivity()
                     finish()
+                } else {
+                    showToast("需配置权限")
                 }
             }
             R.id.tv_count -> {
@@ -127,6 +139,15 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         val intent = packageManager.getLaunchIntentForPackage("com.yuewen.cooperate.ekreader")
         if (intent != null){
             startActivity(intent)
+        }
+    }
+
+    private fun enterEngineerMode(){
+        val intent = packageManager.getLaunchIntentForPackage("com.sprd.engineermode")
+        if (intent != null){
+            startActivity(intent)
+        } else {
+            showToast(R.string.engineer_mode)
         }
     }
 
