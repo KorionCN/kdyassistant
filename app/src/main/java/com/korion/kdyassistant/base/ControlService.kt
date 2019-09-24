@@ -7,6 +7,7 @@ import android.os.IBinder
 import android.os.Looper
 import android.util.Log
 import com.korion.kdyassistant.ui.ControlView
+import com.korion.kdyassistant.utils.showToast
 import kotlin.concurrent.timer
 
 
@@ -47,9 +48,10 @@ class ControlService: Service(), ServiceController {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         intent?.run {
-            period = getLongExtra(KEY_PERIOD, 0)
-            interval = getLongExtra(KEY_INTERVAL, 0)
+            period = getIntExtra(KEY_PERIOD, 0).toLong()
+            interval = getIntExtra(KEY_INTERVAL, 0).toLong()
         }
+        showToast("时长:${period/1000}s, 间隔:${interval/1000}s")
         mControlView.setInterval(interval)
         return super.onStartCommand(intent, flags, startId)
     }

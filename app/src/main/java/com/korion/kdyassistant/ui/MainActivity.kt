@@ -8,6 +8,8 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityManager
 import androidx.appcompat.app.AlertDialog
 import com.korion.kdyassistant.R
@@ -21,16 +23,25 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     companion object {
         const val TAG = "MainActivity"
         const val SYSTEM_WINDOW_REQUEST_CODE = 1
+        const val KEY_TIME = "time"
+        const val KEY_INTERVAL = "interval"
     }
 
     private var mCount = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        supportRequestWindowFeature(Window.FEATURE_NO_TITLE)
         setContentView(R.layout.activity_main)
         btn_launch.setOnClickListener(this)
         tv_count.setOnClickListener(this)
       //  btn_test.setOnClickListener(this)
+
+        val sp = getPreferences(Context.MODE_PRIVATE)
+        val time = sp.getInt(KEY_TIME, 1800)
+        val interval = sp.getInt(KEY_INTERVAL, 6000)
+        edt_period.setText(time.toString())
+        edt_interval.setText(interval.toString())
 
         if (!Settings.canDrawOverlays(this) || !isAccessibilityServiceEnabled()){
             AlertDialog.Builder(this)
@@ -46,20 +57,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         when(view.id){
             R.id.btn_launch -> {
                 if (checkSystemWindowPermission() && checkAccessibilityService()){
-                    val period: Long
-                    val interval: Long
+                    val period: Int
+                    val interval: Int
                     try {
-                        period = edt_period.text.toString().toLong() * 1000
-                        interval = edt_interval.text.toString().toLong()
+                        period = edt_period.text.toString().toInt() * 1000
+                        interval = edt_interval.text.toString().toInt()
                     } catch (e: NumberFormatException){
                         showToast("输入数值有误")
                         return
                     }
+                    val sp = getPreferences(Context.MODE_PRIVATE)
+                    sp.edit().putInt(KEY_TIME, period/1000)
+                        .putInt(KEY_INTERVAL, interval)
+                        .apply()
                     //启动服务
                     val intent = Intent(this, ControlService::class.java)
                     intent.putExtra(ControlService.KEY_PERIOD, period)
                     intent.putExtra(ControlService.KEY_INTERVAL, interval)
                     startService(intent)
+                    launchReaderActivity()
+                    finish()
                 }
             }
             R.id.tv_count -> {
@@ -104,6 +121,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             }
         }
         return false
+    }
+
+    private fun launchReaderActivity(){
+        val intent = packageManager.getLaunchIntentForPackage("com.yuewen.cooperate.ekreader")
+        if (intent != null){
+            startActivity(intent)
+        }
     }
 
 }
